@@ -84,7 +84,6 @@ LCDC::LCDC(sc_module_name name, const sc_time &display_period)
 	// SystemC threads declarations
 	SC_THREAD(compute);
 }
-
 // Destructor
 LCDC::~LCDC() {
 	// Deallocate internal Ximage
@@ -163,6 +162,15 @@ tlm::tlm_response_status LCDC::write(const ensitlm::addr_t &a,
 		if (int_register == 0)
 			display_int.write(false);
 		break;
+	case LCDC_START_REG: 
+		start_register = d;
+		if (start_register == 0x1){
+		    while (!started) {
+			this->started = 1;
+		    }
+		}
+		break;
+
 	default:
 		cerr << name() << ": Write access outside register range!"
 		     << endl;
@@ -173,15 +181,13 @@ tlm::tlm_response_status LCDC::write(const ensitlm::addr_t &a,
 
 // main thread
 void LCDC::compute() {
-	while (!started) {
-		wait(start_event);
+	while (!this->started) {
+		wait(period);
 	}
 
 	cout << name() << ": LCDC starting" << endl;
-
 	while (true) {
 		wait(period);
-
 		fill_buffer();
 		draw();
 
@@ -204,11 +210,9 @@ void LCDC::fill_buffer() {
 	ensitlm::addr_t a = addr_register;
 	ensitlm::data_t d;
 	tlm::tlm_response_status status;
-
 	for (int y = 0; y < kHeight; y++) {
 		for (int x = 0; x < kWidth / 4; x++) {
 			status = initiator_socket.read(a, d);
-
 			if (status != tlm::TLM_OK_RESPONSE) {
 				cerr << name() << ": error while reading "
 				                  "memory (address: 0x" << hex

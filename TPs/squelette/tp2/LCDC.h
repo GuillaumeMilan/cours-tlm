@@ -46,6 +46,7 @@ struct LCDC : sc_core::sc_module {
 
 	unsigned long addr_register;
 	unsigned long int_register;
+	unsigned long start_register;
 
 	bool started;
 	sc_core::sc_event start_event;
