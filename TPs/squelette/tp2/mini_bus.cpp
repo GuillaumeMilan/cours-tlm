@@ -33,19 +33,22 @@ struct initiator : sc_module {
 	sc_signal < bool , SC_MANY_WRITERS > irq_signal;
 	void thread(void) {
 		ensitlm::data_t val = 0xFFFFFFFF;
-		ensitlm::data_t val_hi = 0xFFFFFFFF;
-		ensitlm::data_t val_lo = 0xFFFFFFFF;
-		ensitlm::data_t val_mask_hi = 0xFFFF0000;
-		ensitlm::data_t val_mask_lo = 0x0000FFFF;
+		ensitlm::data_t img_val = 0x00000000;
+		ensitlm::data_t val_mask = 0xF0000000;
 		ensitlm::addr_t addr = VIDEO_MEM_ORIGIN;
 		for(ensitlm::addr_t i=0x00000000;i<ROM_SIZE; i+=4) {
 		    socket.read(i+ROM_ADDR,val);
-		    val_hi = val&val_mask_hi;
-		    val_hi = val_hi | (val_hi >> 16);
-		    val_lo = (val&val_mask_lo)<< 16;
-		    val_lo = val_lo | (val_lo >> 16);
-		    socket.write((i*2)+VIDEO_MEM_ORIGIN,val_hi);
-		    socket.write((i*2+4)+VIDEO_MEM_ORIGIN,val_lo);
+        for(int j = 0; j < 4; j++) {
+            img_val = (img_val|(val_mask&val))>>(4*j);
+            val_mask = val_mask >> 4;
+        }
+		    socket.write((i*2)+VIDEO_MEM_ORIGIN,img_val);
+        img_val = 0;
+        for(int j = 0; j < 4; j++) {
+            img_val = (img_val|(val_mask&val))>>(4*j);
+            val_mask = val_mask >> 4;
+        }
+		    socket.write((i*2+4)+VIDEO_MEM_ORIGIN,img_val);
 		}
 		for(ensitlm::addr_t i=0x00000000;i<SIZE; i+=4) {
 		    socket.read(i+ORIGIN,val);
