@@ -55,9 +55,11 @@ struct initiator : sc_module {
 			else 
 			    saved_color = saved_color | (saved_color>>(-4*h));
 		    }
+#ifdef DEBUG
 		    cout << "COLOR";
 		    cout << saved_color << endl;
 		    cout << j << endl;
+#endif
 		    current_px = px_size;
 		}
 		img_val = (img_val|(val_mask&saved_color)>>(4*j));
@@ -77,8 +79,10 @@ struct initiator : sc_module {
 			    saved_color = saved_color | (saved_color>>(-4*h));
 
 		    }
+#ifdef DEBUG
 		    cout << "COLOR";
 		    cout << saved_color << endl;
+#endif
 		    current_px = px_size;
 		}
 		img_val = (img_val|(val_mask&saved_color)<<(16-4*j));
@@ -131,7 +135,9 @@ struct initiator : sc_module {
 	ensitlm::data_t val =      0xFFFFFFFF;
 	ensitlm::data_t img_val =  0x00000000;
 	ensitlm::data_t val_mask = 0xF0000000;
-	ensitlm::addr_t addr =     0x00000000;
+	/* If wanna do a scrolling image
+	 * ensitlm::addr_t addr =     0x00000000;
+	 */
 	int px_size = 320;
 	int inc = 0;
 	for(ensitlm::addr_t i=0x00000000;i<ROM_SIZE; i+=4) {
@@ -183,7 +189,7 @@ struct initiator : sc_module {
 		if (px_size !=1) {
 		    px_size=px_size/2;
 		    if (px_size==0)
-			px_size==1;
+			px_size=1;
 		}
 	    }
 	    /* => défilement 
@@ -191,10 +197,6 @@ struct initiator : sc_module {
 	     * write_to(addr);
 	     */
 	    write_def(px_size);
-	    cout << "PX SIZE";
-	    cout << px_size << endl;
-	    cout << "INC";
-	    cout << inc << endl;
 	    wait(sc_time(1.0 / 2, SC_SEC));
 	    socket.write(SCREEN_ORIGIN+LCDC_INT_REG, 0x0);
 	    /* Do stuff to annimate the screen */
