@@ -1,4 +1,5 @@
-run-*.x
+run*.x
 *.o
 *.a
 .Xil/
+*.d
