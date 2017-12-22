@@ -10,11 +10,11 @@ HOST_CC = gcc
 HOST_LD = ld
 HOST_OBJDUMP = objdump
 HOST_READELF = readelf
-
+LDSCRIPT = -T ldscript
 INCLUDE = -I. -I../..
-
-OBJS = main.o boot.o it.o
-EXEC = a.out
+BUILD = build
+OBJS = $(BUILD)/main.o $(BUILD)/boot.o $(BUILD)/it.o
+EXEC = $(BUILD)/a.out
 
 # Disassembly of the generated executable.
 dump.dis: $(EXEC)
@@ -25,16 +25,17 @@ sections.txt: $(EXEC)
 	$(TARGET_READELF) -S $< > $@
 
 
-$(EXEC): # TODO: dependencies
-	echo "Rule for linking not implemented."; exit 1
+$(EXEC): $(OBJS)
+	$(TARGET_LD) $(LDSCRIPT) -o $@ $^
 # TODO: use $(TARGET_LD), and use the -T option to point to linker script ldscript
 
-main.o: # TODO: dependencies
-	echo "Rule for compilation not implemented"; exit 1
+$(BUILD)/main.o: ../main.c
+	$(TARGET_CC) -c $(INCLUDE) -o $@ $<
 # TODO: compile with target C compiler
 
-%.o: %.s
-	echo "Rule for assembly not implemented"; exit 1
+$(BUILD)/%.o: %.s
+	$(TARGET_CC) -c $< -o $@
+
 
 .PHONY: clean realclean
 clean:
