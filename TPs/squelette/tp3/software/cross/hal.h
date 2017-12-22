@@ -16,19 +16,24 @@
 #include <stdint.h>
 
 
-/* Dummy implementation of abort(): dereference a NULL pointer */
-#define abort() ((*(int *)NULL) = 0)
+/* Dummy implementation of abort(): invalid instruction */
+#define abort() do {				\
+	printf("abort() function called\r\n");  \
+	_hw_exception_handler();		\
+} while (0)
 
-/* TODO : implementer ces primitives pour la compilation croisée */
-#define read_mem(a)     abort()
-#define write_mem(a,d)  abort()
-#define wait_for_irq()  abort()
-#define cpu_relax()     abort()
+/* TODO: implement HAL primitives for cross-compilation */
+#define hal_read32(a)      abort()
+#define hal_write32(a, d)  abort()
+#define hal_wait_for_irq() abort()
+#define hal_cpu_relax()    abort()
 
-#define microblaze_enable_interrupts() /* Not needed, we always
-					* activate interrupts */
+void microblaze_enable_interrupts(void) {
+	__asm("ori     r3, r0, 2\n"
+	      "mts     rmsr, r3");
+}
 
-/* printf is disabled, for now ... */
-#define printf(...) NULL
+/* TODO: printf is disabled, for now ... */
+#define printf(...) do {} while(0)
 
 #endif /* HAL_H */

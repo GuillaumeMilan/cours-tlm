@@ -1,5 +1,5 @@
 ifndef CROSS_COMPILE
-CROSS_COMPILE=microblaze-unknown-linux-gnu-
+CROSS_COMPILE=microblaze-xilinx-linux-gnu-
 endif
 
 TARGET_CC = $(CROSS_COMPILE)gcc
@@ -17,7 +17,7 @@ OBJS = main.o boot.o it.o
 EXEC = a.out
 
 # Disassembly of the generated executable.
-dump.txt: $(EXEC)
+dump.dis: $(EXEC)
 	$(TARGET_OBJDUMP) -d $< > $@
 
 # Summary of the sections and their size.
@@ -25,20 +25,20 @@ sections.txt: $(EXEC)
 	$(TARGET_READELF) -S $< > $@
 
 
-$(EXEC): # dependencies
+$(EXEC): # TODO: dependencies
 	echo "Rule for linking not implemented."; exit 1
-# (use $(TARGET_LD), and use the -T option to point to linker script ldscript)
+# TODO: use $(TARGET_LD), and use the -T option to point to linker script ldscript
 
-main.o: # dependencies
+main.o: # TODO: dependencies
 	echo "Rule for compilation not implemented"; exit 1
-# (compile with target C compiler)
+# TODO: compile with target C compiler
 
 %.o: %.s
 	echo "Rule for assembly not implemented"; exit 1
 
 .PHONY: clean realclean
 clean:
-	-$(RM) $(OBJS) $(EXEC) dump.txt
+	-$(RM) $(OBJS) $(EXEC) dump.dis sections.txt
 
 realclean: clean
 	-$(RM) *~

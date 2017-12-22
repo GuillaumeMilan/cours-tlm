@@ -10,6 +10,21 @@ volatile int irq_received = 0;
  * (printf, rand) after they are defined */
 #include "hal.h"
 
+#define ALIGN(addr)				\
+	((addr) & (-sizeof(uint32_t)))
+
+#define BIT(bit)				\
+	(1 << (bit))
+
+#define TEST_BIT(var, bit)			\
+	((var) & BIT(bit))
+
+#define SET_BIT(var, bit)			\
+	do { (var) |= BIT(bit); } while(0)
+
+#define CLEAR_BIT(var, bit)			\
+	do { (var) &= ~BIT(bit); } while(0)
+
 #define SW_VGA_WIDTH  VGA_WIDTH/4
 #define SW_VGA_HEIGHT VGA_HEIGHT/4
 
@@ -18,7 +33,7 @@ int get_pixel(uint32_t base_addr, int x, int y) {
 		ALIGN( (x / CHAR_BIT) + (y * (VGA_LINE / CHAR_BIT)) );
 	int bit = 31 - x % (sizeof(uint32_t) * CHAR_BIT);
 
-	uint32_t data = read_mem(addr);
+	uint32_t data = hal_read32(addr);
 	return (TEST_BIT(data, bit) != 0);
 }
 
@@ -27,20 +42,20 @@ void set_pixel(uint32_t base_addr, int x, int y, int value) {
 	    base_addr + ALIGN((x / CHAR_BIT) + (y * (VGA_LINE / CHAR_BIT)));
 	int bit = 31 - x % (sizeof(uint32_t) * CHAR_BIT);
 
-	uint32_t data = read_mem(addr);
+	uint32_t data = hal_read32(addr);
 	if (value) {
 		SET_BIT(data, bit);
 	} else {
 		CLEAR_BIT(data, bit);
 	}
-	write_mem(addr, data);
+	hal_write32(addr, data);
 }
 
 void clr_screen(uint32_t base_addr) {
 	int i;
 	int nbytes = (VGA_LINE * VGA_HEIGHT) / CHAR_BIT;
 	for (i = 0; i < nbytes; i += sizeof(uint32_t)) {
-		write_mem(base_addr + i, 0);
+		hal_write32(base_addr + i, 0);
 	}
 }
 
@@ -48,7 +63,7 @@ void blank_screen(uint32_t base_addr) {
 	int i;
 	int nbytes = (VGA_LINE * VGA_HEIGHT) / CHAR_BIT;
 	for (i = 0; i < nbytes; i += sizeof(uint32_t)) {
-		write_mem(base_addr + i, 0xFFFFFFFF);
+		hal_write32(base_addr + i, 0xFFFFFFFF);
 	}
 }
 
@@ -163,10 +178,10 @@ void draw_gun(int x, int y) {
 int main() {
 	printf("-- boot complete --\r\n");
 	/* Program timer: period (must come early) */
-	write_mem(TIMER_BASEADDR + TIMER_0_TLR_OFFSET, 0x08000000);
+	hal_write32(TIMER_BASEADDR + TIMER_0_TLR_OFFSET, 0x08000000);
 
 	/* Configure and launch timer */
-	write_mem(TIMER_BASEADDR + TIMER_0_CSR_OFFSET,
+	hal_write32(TIMER_BASEADDR + TIMER_0_CSR_OFFSET,
 		  BIT(TIMER_TINT) | BIT(TIMER_ENT) | BIT(TIMER_ENIT) |
 		  BIT(TIMER_ARHT) | BIT(TIMER_UDT));
 
@@ -193,15 +208,15 @@ int main() {
 	set_pixel(old_img_addr, 32, 30, 1);
 
 	/* start vga */
-	write_mem(VGA_BASEADDR + VGA_CFG_OFFSET, old_img_addr);
+	hal_write32(VGA_BASEADDR + VGA_CFG_OFFSET, old_img_addr);
 
 	/* program gpio to input */
-	write_mem(GPIO_BASEADDR + GPIO_TRI_OFFSET, GPIO_INPUT);
+	hal_write32(GPIO_BASEADDR + GPIO_TRI_OFFSET, GPIO_INPUT);
 
 	/* Enable and acknowledge all interrupts */
-	write_mem(INTC_BASEADDR + XIN_MER_OFFSET, ~0);
-	write_mem(INTC_BASEADDR + XIN_IER_OFFSET, ~0);
-	write_mem(INTC_BASEADDR + XIN_IAR_OFFSET, ~0);
+	hal_write32(INTC_BASEADDR + XIN_MER_OFFSET, ~0);
+	hal_write32(INTC_BASEADDR + XIN_IER_OFFSET, ~0);
+	hal_write32(INTC_BASEADDR + XIN_IAR_OFFSET, ~0);
 	microblaze_enable_interrupts();
 
 	while (1) {
@@ -220,7 +235,7 @@ int main() {
 		set_pixel(old_img_addr, 50, 12, 1);
 
 		while (1) {
-			uint32_t d = read_mem(GPIO_BASEADDR + GPIO_DATA_OFFSET);
+			uint32_t d = hal_read32(GPIO_BASEADDR + GPIO_DATA_OFFSET);
 			if (TEST_BIT(d, GPIO_BTN0)) {
 				break;
 			}
@@ -234,7 +249,7 @@ void vga_isr() {
 	if (refresh) {
 		refresh = 0;
 		printf("vga_isr: double buffer flip\r\n");
-		write_mem(VGA_BASEADDR + VGA_CFG_OFFSET, old_img_addr);
+		hal_write32(VGA_BASEADDR + VGA_CFG_OFFSET, old_img_addr);
 	}
 }
 
@@ -253,41 +268,42 @@ void timer_1_isr() {
 }
 
 void interrupt_handler() {
-	irq_received = 1;
 	static int count;
+	irq_received = 1;
 	count++;
 
-	uint32_t status = read_mem(INTC_BASEADDR + XIN_ISR_OFFSET);
+	uint32_t status = hal_read32(INTC_BASEADDR + XIN_ISR_OFFSET);
 
 	/* check if vga requested interrupt */
-	uint32_t vga_irq = read_mem(VGA_BASEADDR + VGA_INT_OFFSET);
+	uint32_t vga_irq = hal_read32(VGA_BASEADDR + VGA_INT_OFFSET);
 	if (vga_irq) {
 		/* call the service routine */
 		vga_isr();
 		/* clear interrupt */
-		write_mem(VGA_BASEADDR + VGA_INT_OFFSET, vga_irq);
+		hal_write32(VGA_BASEADDR + VGA_INT_OFFSET, vga_irq);
 	}
 
 	/* check if timer 0 requested interrupt */
-	uint32_t timer_0_csr = read_mem(TIMER_BASEADDR + TIMER_0_CSR_OFFSET);
+	uint32_t timer_0_csr = hal_read32(TIMER_BASEADDR + TIMER_0_CSR_OFFSET);
 	if (timer_0_csr & TIMER_INTERRUPT) {
 		/* call the service routine */
 		timer_0_isr();
 		/* clear the timer interrupt */
-		write_mem(TIMER_BASEADDR + TIMER_0_CSR_OFFSET, timer_0_csr);
+		hal_write32(TIMER_BASEADDR + TIMER_0_CSR_OFFSET, timer_0_csr);
 	}
 
-	uint32_t timer_1_csr = read_mem(TIMER_BASEADDR + TIMER_1_CSR_OFFSET);
+	uint32_t timer_1_csr = hal_read32(TIMER_BASEADDR + TIMER_1_CSR_OFFSET);
 	if (timer_1_csr & TIMER_INTERRUPT) {
 		/* call the service routine */
 		timer_1_isr();
 		/* clear the timer interrupt */
-		write_mem(TIMER_BASEADDR + TIMER_1_CSR_OFFSET, timer_1_csr);
+		hal_write32(TIMER_BASEADDR + TIMER_1_CSR_OFFSET, timer_1_csr);
 	}
 
-	/* check if uart requested interrupt */
-	/* FIXME: no uart in TLM platform */
+	/* TLM's UART has no interrupts -> Nothing here. The Zybo
+	 * implementation has no UART but uses a dedicated debug
+	 * module. */
 
 	// ACK for interrupt controler
-	write_mem(INTC_BASEADDR + XIN_IAR_OFFSET, status);
+	hal_write32(INTC_BASEADDR + XIN_IAR_OFFSET, status);
 }

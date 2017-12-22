@@ -13,19 +13,19 @@
 extern "C" int main();
 extern "C" void interrupt_handler();
 
-extern "C" void write_mem(uint32_t addr, uint32_t data) {
+extern "C" void hal_write32(uint32_t addr, uint32_t data) {
 	abort(); // TODO
 }
 
-extern "C" unsigned int read_mem(uint32_t addr) {
+extern "C" unsigned int hal_read32(uint32_t addr) {
 	abort(); // TODO
 }
 
-extern "C" void cpu_relax() {
+extern "C" void hal_cpu_relax() {
 	abort(); // TODO
 }
 
-extern "C" void wait_for_irq() {
+extern "C" void hal_wait_for_irq() {
 	abort(); // TODO
 }
 
@@ -43,23 +43,25 @@ NativeWrapper * NativeWrapper::get_instance() {
 NativeWrapper::NativeWrapper(sc_core::sc_module_name name) : sc_module(name),
 							     irq("irq")
 {
+	abort(); // TODO
 }
 
-void NativeWrapper::write_mem(unsigned int addr, unsigned int data)
-{
-}
-
-unsigned int NativeWrapper::read_mem(unsigned int addr)
+void NativeWrapper::hal_write32(unsigned int addr, unsigned int data)
 {
 	abort(); // TODO
 }
 
-void NativeWrapper::cpu_relax()
+unsigned int NativeWrapper::hal_read32(unsigned int addr)
 {
 	abort(); // TODO
 }
 
-void NativeWrapper::wait_for_irq()
+void NativeWrapper::hal_cpu_relax()
+{
+	abort(); // TODO
+}
+
+void NativeWrapper::hal_wait_for_irq()
 {
 	abort(); // TODO
 }
@@ -71,4 +73,5 @@ void NativeWrapper::compute()
 
 void NativeWrapper::interrupt_handler_internal()
 {
+	abort(); // TODO
 }

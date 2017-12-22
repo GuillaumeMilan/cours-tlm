@@ -2,7 +2,6 @@ CC=gcc
 INCLUDE=-I. -I../../
 CFLAGS=$(INCLUDE)
 
-
 main.o: # TODO: dependancies
 	echo "Unimplemented rule"; exit 1
 

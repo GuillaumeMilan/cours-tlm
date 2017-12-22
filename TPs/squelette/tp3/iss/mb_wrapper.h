@@ -18,6 +18,7 @@ struct MBWrapper : sc_core::sc_module {
 	sc_core::sc_in<bool> irq;
 
 	void run_iss(void);
+        /* Add stuff relative to irq handling */
 
 	SC_CTOR(MBWrapper);
 

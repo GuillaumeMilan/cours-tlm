@@ -26,7 +26,6 @@ extern bool elf_load(const std::string &filename,
 int sc_main(int, char **) {
 	MBWrapper cpu("MBWrapper");
 	Memory inst_ram("inst_ram", INST_RAM_SIZE);
-	// Memory data_ram("data_ram", SRAM_SIZE);
 	Bus bus("bus");
 	TIMER timer("timer", sc_core::sc_time(20, sc_core::SC_NS));
 	Vga vga("vga");
@@ -76,7 +75,6 @@ int sc_main(int, char **) {
 
 	//      port             start addr         size
 	bus.map(inst_ram.target, INST_RAM_BASEADDR, INST_RAM_SIZE);
-	// bus.map(data_ram.target, SRAM_BASEADDR,     SRAM_SIZE);
 	bus.map(vga.target, VGA_BASEADDR, VGA_SIZE);
 	bus.map(gpio.target, GPIO_BASEADDR, GPIO_SIZE);
 	bus.map(timer.target, TIMER_BASEADDR, TIMER_SIZE);
