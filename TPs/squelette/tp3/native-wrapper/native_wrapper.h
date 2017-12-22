@@ -19,11 +19,11 @@ public:
 	*/
 	static NativeWrapper * get_instance();
 
-	void write_mem(unsigned int addr, unsigned int data);
-	unsigned int read_mem(unsigned int addr);
+	void hal_write32(unsigned int addr, unsigned int data);
+	unsigned int hal_read32(unsigned int addr);
 
-	void cpu_relax();
-	void wait_for_irq();
+	void hal_cpu_relax();
+	void hal_wait_for_irq();
 
 	void compute();
 
