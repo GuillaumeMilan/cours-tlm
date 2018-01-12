@@ -14,23 +14,19 @@ extern "C" int main();
 extern "C" void interrupt_handler();
 
 extern "C" void hal_write32(uint32_t addr, uint32_t data) {
-   NativeWrapper instance = NativeWrapper::get_instance();
-   instance.hal_write32(addr, data);
+   NativeWrapper::get_instance()->hal_write32(addr, data);
 }
 
 extern "C" unsigned int hal_read32(uint32_t addr) {
-   NativeWrapper instance = NativeWrapper::get_instance();
-   return instance.hal_read32(addr);
+   return NativeWrapper::get_instance()->hal_read32(addr);
 }
 
 extern "C" void hal_cpu_relax() {
-   NativeWrapper instance = NativeWrapper::get_instance();
-   instance.hal_cpu_relax();
+   NativeWrapper::get_instance()->hal_cpu_relax();
 }
 
 extern "C" void hal_wait_for_irq() {
-   NativeWrapper instance = NativeWrapper::get_instance();
-   instance.wait_for_irq()();
+   NativeWrapper::get_instance()->hal_wait_for_irq();
 }
 
 /* To keep it simple, the soft wrapper is a singleton, we can
