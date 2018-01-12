@@ -46,7 +46,7 @@ NativeWrapper::NativeWrapper(sc_core::sc_module_name name) : sc_module(name),
 							     irq("irq")
 {
 	SC_THREAD(compute);
-	SC_METHOD(interrupt_handler_internal);
+	SC_METHOD(hal_wait_for_irq);
 	sensitive << irq;
 }
 
@@ -73,15 +73,16 @@ void NativeWrapper::hal_cpu_relax()
 
 void NativeWrapper::hal_wait_for_irq()
 {
-	abort(); // TODO
+	if( irq == 1 ) 
+                this->interrupt_handler_internal();
 }
 
 void NativeWrapper::compute()
 {
-	abort(); // TODO
+        main();
 }
 
 void NativeWrapper::interrupt_handler_internal()
 {
-	abort(); // TODO
+	interrupt_handler();
 }
