@@ -9,7 +9,6 @@
    compréhension. Une version multi-fichiers (donc plus propre) est
    également disponible.
    */
-
 #include "ensitlm.h"
 #include "bus.h"
 #include "memory.h" 
