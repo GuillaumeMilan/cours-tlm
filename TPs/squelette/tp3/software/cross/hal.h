@@ -23,7 +23,7 @@
 } while (0)
 
 /* TODO: implement HAL primitives for cross-compilation */
-#define hal_read32(a)      abort()
+#define hal_read32(a)      0
 #define hal_write32(a, d)  abort()
 #define hal_wait_for_irq() abort()
 #define hal_cpu_relax()    abort()
