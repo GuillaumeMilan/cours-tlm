@@ -13,7 +13,7 @@ HOST_READELF = readelf
 LDSCRIPT = -T ldscript
 INCLUDE = -I. -I../..
 BUILD = build
-OBJS = $(BUILD)/main.o $(BUILD)/boot.o $(BUILD)/it.o
+OBJS = $(BUILD)/boot.o $(BUILD)/it.o $(BUILD)/main.o 
 EXEC = $(BUILD)/a.out
 
 # Disassembly of the generated executable.
@@ -26,7 +26,7 @@ sections.txt: $(EXEC)
 
 
 $(EXEC): $(OBJS)
-	$(TARGET_LD) $(LDSCRIPT) -o $@ $^
+	$(TARGET_LD) $(LDSCRIPT) $^ -o $@ 
 # TODO: use $(TARGET_LD), and use the -T option to point to linker script ldscript
 
 $(BUILD)/main.o: ../main.c
