@@ -8,6 +8,7 @@
 #include "microblaze.h"
 #include <iomanip>
 
+#include "../address_map.h"
 
 /* Time between two step()s */
 static const sc_core::sc_time PERIOD(20, sc_core::SC_NS);
@@ -38,7 +39,12 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
 	case iss_t::READ_WORD: {
 		/* The ISS requested a data read
 		   (mem_addr into localbuf). */
-		abort(); // TODO
+	        status = socket.read(INST_RAM_BASEADDR+mem_addr, localbuf);
+                if(!status == tlm::TLM_OK_RESPONSE) {
+                   cout << "Failed to read the memory at adress";
+                   cout << hex << mem_addr << endl;
+                   abort();
+                }
 #ifdef DEBUG
 		std::cout << hex << "read    " << setw(10) << localbuf
 		          << " at address " << mem_addr << std::endl;
@@ -59,7 +65,10 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
 	case iss_t::WRITE_WORD: {
 		/* The ISS requested a data write
 		   (mem_wdata at mem_addr). */
-		abort(); // TODO
+                status = socket.write(INST_RAM_BASEADDR+mem_addr,mem_wdata);
+                if ( status !=  tlm::TLM_OK_RESPONSE) {
+                    abort();
+                }
 #ifdef DEBUG
 		std::cout << hex << "wrote   " << setw(10) << mem_wdata
 		          << " at address " << mem_addr << std::endl;

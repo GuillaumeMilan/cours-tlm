@@ -12,7 +12,7 @@ HOST_OBJDUMP = objdump
 HOST_READELF = readelf
 LDSCRIPT = -T ldscript
 INCLUDE = -I. -I../..
-BUILD = .
+BUILD = build
 OBJS = $(BUILD)/main.o $(BUILD)/boot.o $(BUILD)/it.o  
 EXEC = $(BUILD)/a.out
 

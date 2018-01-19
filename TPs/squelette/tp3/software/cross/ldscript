@@ -7,7 +7,7 @@ SECTIONS
 {
    .all : /* code, initialized data, and small bss */
        {
-          boot.o(.text)
+          build/boot.o(.text)
           *(.text)
           _etext = ALIGN(4);
           *(.rodata)
