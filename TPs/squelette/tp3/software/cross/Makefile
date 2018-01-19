@@ -12,8 +12,8 @@ HOST_OBJDUMP = objdump
 HOST_READELF = readelf
 LDSCRIPT = -T ldscript
 INCLUDE = -I. -I../..
-BUILD = build
-OBJS = $(BUILD)/boot.o $(BUILD)/it.o $(BUILD)/main.o 
+BUILD = .
+OBJS = $(BUILD)/main.o $(BUILD)/boot.o $(BUILD)/it.o  
 EXEC = $(BUILD)/a.out
 
 # Disassembly of the generated executable.
@@ -26,7 +26,7 @@ sections.txt: $(EXEC)
 
 
 $(EXEC): $(OBJS)
-	$(TARGET_LD) $(LDSCRIPT) $^ -o $@ 
+	$(TARGET_LD) $^ -o $@ $(LDSCRIPT)
 # TODO: use $(TARGET_LD), and use the -T option to point to linker script ldscript
 
 $(BUILD)/main.o: ../main.c

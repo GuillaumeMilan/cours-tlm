@@ -26,6 +26,7 @@ _break_handler: /* Self-loop (nothing better to do) */
 
         .org 0x20
 _hw_exception_handler:
+.globl  _hw_exception_handler
         bri _hw_exception_handler
 
         .text

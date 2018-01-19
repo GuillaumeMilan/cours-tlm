@@ -15,7 +15,7 @@
 
 #include <stdint.h>
 
-
+extern void _hw_exception_handler(void);
 /* Dummy implementation of abort(): invalid instruction */
 #define abort() do {				\
 	printf("abort() function called\r\n");  \
