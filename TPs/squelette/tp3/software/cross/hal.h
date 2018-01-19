@@ -23,8 +23,8 @@ extern void _hw_exception_handler(void);
 } while (0)
 
 /* TODO: implement HAL primitives for cross-compilation */
-#define hal_read32(a)      0
-#define hal_write32(a, d)  abort()
+#define hal_read32(a)      *((uint32_t *) a)
+#define hal_write32(a, d)  *((uint32_t *) a) = (uint32_t) d
 #define hal_wait_for_irq() abort()
 #define hal_cpu_relax()    abort()
 
