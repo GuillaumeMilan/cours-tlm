@@ -22,7 +22,6 @@ extern void _hw_exception_handler(void);
 	_hw_exception_handler();		\
 } while (0)
 
-/* TODO: implement HAL primitives for cross-compilation */
 #define hal_read32(a)      *((uint32_t *) (a))
 // Mais pourquoi donc faut-il mettre "()" autour de "a" dans la def d'une macro?
 // ??????????
@@ -37,7 +36,6 @@ void microblaze_enable_interrupts(void) {
 	      "mts     rmsr, r3");
 }
 
-/* TODO: printf is disabled, for now ... */
 #define printf(a) do { \
         int printf_i = 0;                                                    \
         for(printf_i=0; (a)[printf_i]!='\0'; printf_i ++) {                     \

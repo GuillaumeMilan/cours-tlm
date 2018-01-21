@@ -27,11 +27,9 @@ sections.txt: $(EXEC)
 
 $(EXEC): $(OBJS)
 	$(TARGET_LD) $^ -o $@ $(LDSCRIPT)
-# TODO: use $(TARGET_LD), and use the -T option to point to linker script ldscript
 
 $(BUILD)/main.o: ../main.c
 	$(TARGET_CC) -c $(INCLUDE) -o $@ $<
-# TODO: compile with target C compiler
 
 $(BUILD)/%.o: %.s
 	$(TARGET_CC) -c $< -o $@

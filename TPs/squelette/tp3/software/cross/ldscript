@@ -23,6 +23,5 @@ SECTIONS
           _end = ALIGN(4);
         } > bram
 
-   /* TODO: find suitable address for stack, this one won't work */
 _stack_top  = 0x0001FFFC;
 }
