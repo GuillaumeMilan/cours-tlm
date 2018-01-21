@@ -3,7 +3,7 @@
 #include "offsets/timer.h"
 #include "offsets/memory.h"
 
-#define DEBUG
+//#define DEBUG
 
 TIMER::TIMER(sc_core::sc_module_name name, sc_core::sc_time p)
     : sc_core::sc_module(name), period(p) {

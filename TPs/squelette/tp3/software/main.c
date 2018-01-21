@@ -3,7 +3,7 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
-
+#define DEBUG
 volatile int irq_received = 0;
 
 /* Must come after stdio.h to be able to modify libc functions
@@ -52,11 +52,17 @@ void set_pixel(uint32_t base_addr, int x, int y, int value) {
 }
 
 void clr_screen(uint32_t base_addr) {
+#ifdef DEBUG
+        printf("clear_screen begin\r\n");
+#endif
 	int i;
 	int nbytes = (VGA_LINE * VGA_HEIGHT) / CHAR_BIT;
 	for (i = 0; i < nbytes; i += sizeof(uint32_t)) {
 		hal_write32(base_addr + i, 0);
 	}
+#ifdef DEBUG
+        printf("clear_screen end\r\n");
+#endif
 }
 
 void blank_screen(uint32_t base_addr) {
@@ -189,7 +195,9 @@ int main() {
 	old_img_addr = 0x20000 - 1024 - (VGA_LINE * VGA_HEIGHT) / CHAR_BIT;
 	new_img_addr = old_img_addr - (VGA_LINE * VGA_HEIGHT) / CHAR_BIT;
 
+	printf("before\r\n");
 	clr_screen(old_img_addr);
+	printf("after\r\n");
 	//clr_screen(new_img_addr);
 
 	draw_gun(0, 30);
