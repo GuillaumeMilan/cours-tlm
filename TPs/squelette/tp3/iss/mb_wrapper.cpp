@@ -39,9 +39,10 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
 	case iss_t::READ_WORD: {
 		/* The ISS requested a data read
 		   (mem_addr into localbuf). */
-	        status = socket.read(INST_RAM_BASEADDR+mem_addr, localbuf);
-                if(!status == tlm::TLM_OK_RESPONSE) {
-                   cout << "Failed to read the memory at adress";
+	        status = socket.read(mem_addr, localbuf);
+                localbuf = uint32_be_to_machine(localbuf);
+                if(status != tlm::TLM_OK_RESPONSE) {
+                   cout << "Failed to read the memory at adress: ";
                    cout << hex << mem_addr << endl;
                    abort();
                 }
@@ -65,8 +66,11 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
 	case iss_t::WRITE_WORD: {
 		/* The ISS requested a data write
 		   (mem_wdata at mem_addr). */
-                status = socket.write(INST_RAM_BASEADDR+mem_addr,mem_wdata);
-                if ( status !=  tlm::TLM_OK_RESPONSE) {
+                localbuf = uint32_machine_to_be(mem_wdata);
+                status = socket.write(mem_addr, localbuf);
+                if (status !=  tlm::TLM_OK_RESPONSE) {
+                    cout << "Failed to write at adress: ";
+                    cout << hex << mem_addr << endl;
                     abort();
                 }
 #ifdef DEBUG
@@ -98,8 +102,9 @@ void MBWrapper::run_iss(void) {
 				/* The ISS requested an instruction.
 				 * We have to do the instruction fetch
 				 * by reading from memory. */
-				abort(); // TODO
 				uint32_t localbuf;
+                                socket.read(ins_addr, localbuf);
+                                localbuf = uint32_be_to_machine(localbuf);
 				m_iss.setInstruction(0, localbuf);
 			}
 

@@ -14,7 +14,7 @@ LDSCRIPT = -T ldscript
 INCLUDE = -I. -I../..
 BUILD = build
 OBJS = $(BUILD)/main.o $(BUILD)/boot.o $(BUILD)/it.o  
-EXEC = $(BUILD)/a.out
+EXEC = a.out
 
 # Disassembly of the generated executable.
 dump.dis: $(EXEC)
