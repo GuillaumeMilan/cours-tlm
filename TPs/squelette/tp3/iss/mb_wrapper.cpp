@@ -41,7 +41,7 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
 		   (mem_addr into localbuf). */
 	        status = socket.read(mem_addr, localbuf);
                 localbuf = uint32_be_to_machine(localbuf);
-                if(status != tlm::TLM_OK_RESPONSE) {
+                if (status != tlm::TLM_OK_RESPONSE) {
                    cout << "Failed to read the memory at adress: ";
                    cout << hex << mem_addr << endl;
                    abort();
@@ -53,8 +53,18 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
 		m_iss.setDataResponse(0, localbuf);
 	} break;
 	case iss_t::READ_BYTE:
-	case iss_t::WRITE_HALF:
+                status = socket.read(mem_addr - mem_addr % 4, localbuf);
+                if (status != tlm::TLM_OK_RESPONSE) {
+                   cout << "Failed to read the memory at adress: ";
+                   cout << hex << mem_addr << endl;
+                   abort();
+                }
+                localbuf &= 0xFF >> (mem_addr % 4) * 8;
+                localbuf = localbuf << (4 - (mem_addr % 4)) * 8;
+                localbuf = uint32_be_to_machine(localbuf);
+                break;
 	case iss_t::WRITE_BYTE:
+	case iss_t::WRITE_HALF:
 	case iss_t::READ_HALF:
 		// Not needed for our platform.
 		std::cerr << "Operation " << mem_type << " unsupported for "
