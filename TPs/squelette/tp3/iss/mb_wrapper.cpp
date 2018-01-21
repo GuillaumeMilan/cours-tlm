@@ -67,9 +67,10 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
                    cout << hex << mem_addr << endl;
                    abort();
                 }
-                localbuf &= 0xFF << (mem_addr % 4) * 8;
-                localbuf = localbuf >> (4 - (mem_addr % 4)) * 8;
                 localbuf = uint32_machine_to_be(localbuf);
+                localbuf &= 0xFF << ((mem_addr % 4) * 8);
+                localbuf = localbuf >> ((mem_addr % 4) * 8);
+                m_iss.setDataResponse(0, localbuf);
                 break;
 	case iss_t::WRITE_BYTE:
 	case iss_t::WRITE_HALF:
