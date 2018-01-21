@@ -35,7 +35,7 @@ MBWrapper::MBWrapper(sc_core::sc_module_name name)
 /* IRQ forwarding method to be defined here */
 
 void MBWrapper::handler() {
-#if DEBUG
+#ifdef DEBUG
    cout << "interuption";
    cout << std::hex << irq << endl;
 #endif
@@ -87,6 +87,10 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
 		// No cache => nothing to do.
 		break;
 	case iss_t::WRITE_WORD: {
+#ifdef DEBUG
+		std::cout << hex << "wrote   " << setw(10) << mem_wdata
+		          << " at address " << mem_addr << std::endl;
+#endif
 		/* The ISS requested a data write
 		   (mem_wdata at mem_addr). */
                 localbuf = uint32_be_to_machine(mem_wdata);
@@ -96,10 +100,6 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
                     cout << hex << mem_addr << endl;
                     abort();
                 }
-#ifdef DEBUG
-		std::cout << hex << "wrote   " << setw(10) << mem_wdata
-		          << " at address " << mem_addr << std::endl;
-#endif
 		m_iss.setDataResponse(0, 0);
 	} break;
 	case iss_t::STORE_COND:
