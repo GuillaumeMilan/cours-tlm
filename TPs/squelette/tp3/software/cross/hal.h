@@ -34,6 +34,16 @@ void microblaze_enable_interrupts(void) {
 }
 
 /* TODO: printf is disabled, for now ... */
-#define printf(...) do {} while(0)
-
+#define printf(a) do { \
+        int printf_i = 0;                                                    \
+        *((uint32_t*)(UART_BASEADDR+UART_FIFO_WRITE)) = a[printf_i];         \
+}while(0)
+/*
+#define printf(...) do {                                                     \
+        int printf_i = 0;                                                    \
+        *((uint32_t*)(UART_BASEADDR+UART_FIFO_WRITE)) = "(";                 \
+        for(printf_i=0; printf_i++; a[printf_i]!='\0') {                     \
+                *((uint32_t*)(UART_BASEADDR+UART_FIFO_WRITE)) = a[printf_i]; \
+        }                                                                    \
+} while (0)*/
 #endif /* HAL_H */

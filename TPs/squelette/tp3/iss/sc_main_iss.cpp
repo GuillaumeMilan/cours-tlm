@@ -65,6 +65,7 @@ int sc_main(int, char **) {
 	bus.initiator(timer.target);
 	bus.initiator(gpio.target);
 	bus.initiator(intc.target);
+        bus.initiator(uart.target);
 
 	// interrupts
 	vga.irq(vga_irq);
