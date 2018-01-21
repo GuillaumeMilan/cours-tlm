@@ -24,6 +24,7 @@ MBWrapper::MBWrapper(sc_core::sc_module_name name)
 {
 	m_iss.reset();
 	m_iss.setIrq(false);
+        irq_processing = false;
 	SC_THREAD(run_iss);
         SC_METHOD(handler);
         sensitive << irq;
@@ -34,9 +35,12 @@ MBWrapper::MBWrapper(sc_core::sc_module_name name)
 /* IRQ forwarding method to be defined here */
 
 void MBWrapper::handler() {
-   /* TODO */
+#if DEBUG
    cout << "interuption";
    cout << std::hex << irq << endl;
+#endif
+   m_iss.setIrq(true);
+   irq_processing = true;
 }
 
 void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
@@ -139,6 +143,13 @@ void MBWrapper::run_iss(void) {
 				                  mem_wdata);
 			}
 			m_iss.step();
+                        if (irq_processing) 
+                                inst_count++;
+                        if (inst_count == 5) {
+                                inst_count = 0;
+                                m_iss.setIrq(false);
+                                irq_processing = false;
+                        }
                         /* IRQ handling to be done */
 		}
 

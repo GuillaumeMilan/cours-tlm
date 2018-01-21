@@ -29,6 +29,7 @@ private:
         void handler(void);
 
 	iss_t m_iss;
+        bool irq_processing;
 };
 
 #endif // MB_WRAPPER_H
