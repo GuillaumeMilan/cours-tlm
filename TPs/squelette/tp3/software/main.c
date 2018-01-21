@@ -3,7 +3,7 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
-#define DEBUG
+//#define DEBUG
 volatile int irq_received = 0;
 
 /* Must come after stdio.h to be able to modify libc functions
@@ -195,9 +195,7 @@ int main() {
 	old_img_addr = 0x20000 - 1024 - (VGA_LINE * VGA_HEIGHT) / CHAR_BIT;
 	new_img_addr = old_img_addr - (VGA_LINE * VGA_HEIGHT) / CHAR_BIT;
 
-	printf("before\r\n");
 	clr_screen(old_img_addr);
-	printf("after\r\n");
 	//clr_screen(new_img_addr);
 
 	draw_gun(0, 30);
