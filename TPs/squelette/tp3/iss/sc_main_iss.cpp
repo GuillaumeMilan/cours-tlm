@@ -27,6 +27,7 @@ int sc_main(int, char **) {
 	MBWrapper cpu("MBWrapper");
 	Memory inst_ram("inst_ram", INST_RAM_SIZE);
 	Bus bus("bus");
+        UART uart("uart0");
 	TIMER timer("timer", sc_core::sc_time(20, sc_core::SC_NS));
 	Vga vga("vga");
 	Intc intc("intc");
@@ -79,6 +80,7 @@ int sc_main(int, char **) {
 	bus.map(gpio.target, GPIO_BASEADDR, GPIO_SIZE);
 	bus.map(timer.target, TIMER_BASEADDR, TIMER_SIZE);
 	bus.map(intc.target, INTC_BASEADDR, INTC_SIZE);
+        bus.map(uart.target, UART_BASEADDR, UART_SIZE);
 
 
 	// start the simulation

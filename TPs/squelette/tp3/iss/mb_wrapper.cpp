@@ -25,11 +25,19 @@ MBWrapper::MBWrapper(sc_core::sc_module_name name)
 	m_iss.reset();
 	m_iss.setIrq(false);
 	SC_THREAD(run_iss);
+        SC_METHOD(handler);
+        sensitive << irq;
         /* The method that is needed to forward the interrupts from the SystemC
          * environment to the ISS need to be declared here */
 }
 
 /* IRQ forwarding method to be defined here */
+
+void MBWrapper::handler() {
+   /* TODO */
+   cout << "interuption";
+   cout << std::hex << irq << endl;
+}
 
 void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
                                   uint32_t mem_addr, uint32_t mem_wdata) {
