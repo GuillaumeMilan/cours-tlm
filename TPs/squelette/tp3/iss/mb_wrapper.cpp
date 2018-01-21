@@ -1,6 +1,6 @@
 /********************************************************************
- * Copyright (C) 2009, 2012 by Verimag                              *
- * Initial author: Matthieu Moy                                     *
+ * Copyright (C) 2009, 2012 by Verimag				    *
+ * Initial author: Matthieu Moy					    *
  ********************************************************************/
 
 #include "ensitlm.h"
@@ -24,12 +24,12 @@ MBWrapper::MBWrapper(sc_core::sc_module_name name)
 {
 	m_iss.reset();
 	m_iss.setIrq(false);
-        irq_processing = false;
+	irq_processing = false;
 	SC_THREAD(run_iss);
-        SC_METHOD(handler);
-        sensitive << irq;
-        /* The method that is needed to forward the interrupts from the SystemC
-         * environment to the ISS need to be declared here */
+	SC_METHOD(handler);
+	sensitive << irq;
+	/* The method that is needed to forward the interrupts from the SystemC
+	 * environment to the ISS need to be declared here */
 }
 
 /* IRQ forwarding method to be defined here */
@@ -44,44 +44,44 @@ void MBWrapper::handler() {
 }
 
 void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
-                                  uint32_t mem_addr, uint32_t mem_wdata) {
+				  uint32_t mem_addr, uint32_t mem_wdata) {
 	uint32_t localbuf;
 	tlm::tlm_response_status status;
 	switch (mem_type) {
 	case iss_t::READ_WORD: {
 		/* The ISS requested a data read
 		   (mem_addr into localbuf). */
-	        status = socket.read(mem_addr, localbuf);
-                localbuf = uint32_machine_to_be(localbuf);
-                if (status != tlm::TLM_OK_RESPONSE) {
-                   cout << "Failed to read the memory at adress: ";
-                   cout << hex << mem_addr << endl;
-                   abort();
-                }
+		status = socket.read(mem_addr, localbuf);
+		localbuf = uint32_machine_to_be(localbuf);
+		if (status != tlm::TLM_OK_RESPONSE) {
+		   cout << "Failed to read the memory at adress: ";
+		   cout << hex << mem_addr << endl;
+		   abort();
+		}
 #ifdef DEBUG
 		std::cout << hex << "read    " << setw(10) << localbuf
-		          << " at address " << mem_addr << std::endl;
+			  << " at address " << mem_addr << std::endl;
 #endif
 		m_iss.setDataResponse(0, localbuf);
 	} break;
 	case iss_t::READ_BYTE:
-                status = socket.read(mem_addr - mem_addr % 4, localbuf);
-                if (status != tlm::TLM_OK_RESPONSE) {
-                   cout << "Failed to read the memory at adress: ";
-                   cout << hex << mem_addr << endl;
-                   abort();
-                }
-                localbuf = uint32_machine_to_be(localbuf);
-                localbuf &= 0xFF << ((mem_addr % 4) * 8);
-                localbuf = localbuf >> ((mem_addr % 4) * 8);
-                m_iss.setDataResponse(0, localbuf);
-                break;
+		status = socket.read(mem_addr - mem_addr % 4, localbuf);
+		if (status != tlm::TLM_OK_RESPONSE) {
+		   cout << "Failed to read the memory at adress: ";
+		   cout << hex << mem_addr << endl;
+		   abort();
+		}
+		localbuf = uint32_machine_to_be(localbuf);
+		localbuf &= 0xFF << ((mem_addr % 4) * 8);
+		localbuf = localbuf >> ((mem_addr % 4) * 8);
+		m_iss.setDataResponse(0, localbuf);
+		break;
 	case iss_t::WRITE_BYTE:
 	case iss_t::WRITE_HALF:
 	case iss_t::READ_HALF:
 		// Not needed for our platform.
 		std::cerr << "Operation " << mem_type << " unsupported for "
-		          << std::showbase << std::hex << mem_addr << std::endl;
+			  << std::showbase << std::hex << mem_addr << std::endl;
 		abort();
 	case iss_t::LINE_INVAL:
 		// No cache => nothing to do.
@@ -89,17 +89,17 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
 	case iss_t::WRITE_WORD: {
 #ifdef DEBUG
 		std::cout << hex << "wrote   " << setw(10) << mem_wdata
-		          << " at address " << mem_addr << std::endl;
+			  << " at address " << mem_addr << std::endl;
 #endif
 		/* The ISS requested a data write
 		   (mem_wdata at mem_addr). */
-                localbuf = uint32_be_to_machine(mem_wdata);
-                status = socket.write(mem_addr, localbuf);
-                if (status !=  tlm::TLM_OK_RESPONSE) {
-                    cout << "Failed to write at adress: ";
-                    cout << hex << mem_addr << endl;
-                    abort();
-                }
+		localbuf = uint32_be_to_machine(mem_wdata);
+		status = socket.write(mem_addr, localbuf);
+		if (status !=  tlm::TLM_OK_RESPONSE) {
+		    cout << "Failed to write at adress: ";
+		    cout << hex << mem_addr << endl;
+		    abort();
+		}
 		m_iss.setDataResponse(0, 0);
 	} break;
 	case iss_t::STORE_COND:
@@ -126,8 +126,8 @@ void MBWrapper::run_iss(void) {
 				 * We have to do the instruction fetch
 				 * by reading from memory. */
 				uint32_t localbuf;
-                                socket.read(ins_addr, localbuf);
-                                localbuf = uint32_machine_to_be(localbuf);
+				socket.read(ins_addr, localbuf);
+				localbuf = uint32_machine_to_be(localbuf);
 				m_iss.setInstruction(0, localbuf);
 			}
 
@@ -136,21 +136,21 @@ void MBWrapper::run_iss(void) {
 			uint32_t mem_addr;
 			uint32_t mem_wdata;
 			m_iss.getDataRequest(mem_asked, mem_type, mem_addr,
-			                     mem_wdata);
+					     mem_wdata);
 
 			if (mem_asked) {
 				exec_data_request(mem_type, mem_addr,
-				                  mem_wdata);
+						  mem_wdata);
 			}
 			m_iss.step();
-                        if (irq_processing) 
-                                inst_count++;
-                        if (inst_count == 5) {
-                                inst_count = 0;
-                                m_iss.setIrq(false);
-                                irq_processing = false;
-                        }
-                        /* IRQ handling to be done */
+			if (irq_processing) 
+				inst_count++;
+			if (inst_count == 5) {
+				inst_count = 0;
+				m_iss.setIrq(false);
+				irq_processing = false;
+			}
+			/* IRQ handling to be done */
 		}
 
 		wait(PERIOD);
